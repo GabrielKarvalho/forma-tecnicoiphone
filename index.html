@@ -136,10 +136,7 @@ h1,h2,h3,h4{font-family:var(--font-display);letter-spacing:-.02em}
 
 /* marquee */
 .marquee-mask{margin-top:48px;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
-.marquee-track{display:flex;gap:1rem;width:max-content;padding:12px 0 28px}
-.marquee-track.left{animation:marquee-left 45s linear infinite}
-.marquee-track.right{animation:marquee-right 45s linear infinite}
-.marquee-mask:hover .marquee-track{animation-play-state:paused}
+.marquee-track{display:flex;gap:1rem;width:max-content;padding:12px 0 28px;will-change:transform;transform:translate3d(0,0,0)}
 
 /* apostila */
 .page{height:288px;width:210px;flex-shrink:0;border-radius:16px;background:#fff;box-shadow:var(--shadow-card),inset 0 0 0 1px var(--border);padding:18px;display:flex;flex-direction:column;gap:10px}
@@ -711,7 +708,7 @@ $("para-quem").innerHTML = CONTENT.paraQuem.map(t =>
 $("aprender").innerHTML = CONTENT.aprender.map(t =>
   `<div class="feature reveal-on-scroll"><span class="icon-circle icon-electric">${icon("wrench")}</span><p>${t}</p></div>`).join("");
 
-const imgTag = (src, alt, cls) => `<img class="${cls}" src="${src}" alt="${alt}" loading="lazy" decoding="async" width="900" height="900" />`;
+const imgTag = (src, alt, cls) => `<img class="${cls}" src="${src}" alt="${alt}" decoding="async" width="900" height="900" />`;
 const apost = CONTENT.apostilas.map(([src,alt]) => imgTag(src, alt, "mq-img")).join("");
 $("apostilas").innerHTML = apost + apost;
 
@@ -751,6 +748,34 @@ if ("IntersectionObserver" in window) {
   }), { threshold: 0.12 });
   els.forEach(el => io.observe(el));
 } else els.forEach(el => el.classList.add("in-view"));
+
+/* ===== CARROSSÉIS (movimento contínuo via JS, funciona em qualquer aparelho) ===== */
+(() => {
+  const SPEED = 40; // pixels por segundo
+  document.querySelectorAll('.marquee-track').forEach(track => {
+    const dir = track.classList.contains('right') ? 1 : -1;
+    let x = 0, last = null, paused = false;
+    const mask = track.parentElement;
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      mask.addEventListener('mouseenter', () => paused = true);
+      mask.addEventListener('mouseleave', () => paused = false);
+    }
+    const step = (t) => {
+      const half = track.scrollWidth / 2;
+      if (last !== null && !paused && half > 0) {
+        const dt = Math.min((t - last) / 1000, 0.1);
+        x += dir * SPEED * dt;
+        if (x <= -half) x += half;
+        if (x > 0) x -= half;
+        track.style.transform = `translate3d(${x}px,0,0)`;
+      }
+      last = t;
+      requestAnimationFrame(step);
+    };
+    if (dir === 1) x = -1; // começa deslocado para o lado certo
+    requestAnimationFrame(step);
+  });
+})();
 
 /* ===== CHECKOUT: repassa UTMs/parâmetros da URL para o checkout ===== */
 (() => {
