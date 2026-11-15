@@ -549,7 +549,7 @@ src="https://www.facebook.com/tr?id=1126461060235843&ev=PageView&noscript=1"
           <p class="price text-electric offer-price"><small>R$</small>29<small>,90</small></p>
           <p class="price-note">Pagamento único • Sem mensalidade</p>
         </div>
-        <a href="#" class="btn-cta w-full mt-6 js-checkout">QUERO GARANTIR MINHA VAGA →</a>
+        <a href="https://pay.wiapy.com/KnDXpyANX9T-" class="btn-cta w-full mt-6 js-checkout">QUERO GARANTIR MINHA VAGA →</a>
         <div class="trust"><span>🔒 Compra 100% segura</span><span>⚡ Acesso imediato</span><span>🛡️ Garantia de 7 dias</span></div>
       </div>
     </div>
@@ -751,6 +751,19 @@ if ("IntersectionObserver" in window) {
   }), { threshold: 0.12 });
   els.forEach(el => io.observe(el));
 } else els.forEach(el => el.classList.add("in-view"));
+
+/* ===== CHECKOUT: repassa UTMs/parâmetros da URL para o checkout ===== */
+(() => {
+  const params = new URLSearchParams(location.search);
+  if (![...params.keys()].length) return;
+  document.querySelectorAll('.js-checkout').forEach(a => {
+    try {
+      const u = new URL(a.href);
+      params.forEach((v, k) => { if (!u.searchParams.has(k)) u.searchParams.set(k, v); });
+      a.href = u.toString();
+    } catch (e) {}
+  });
+})();
 
 /* ===== META PIXEL: EVENTOS DE CLIQUE ===== */
 const px = (...a) => { try { if (window.fbq) fbq(...a); } catch(e) {} };
