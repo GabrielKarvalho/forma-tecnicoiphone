@@ -773,8 +773,10 @@ if ("IntersectionObserver" in window) {
 
 /* ===== META PIXEL: EVENTOS DE CLIQUE ===== */
 const px = (...a) => { try { if (window.fbq) fbq(...a); } catch(e) {} };
+// InitiateCheckout é disparado pelo Pixel dentro do checkout da Wiapy (com eventID).
+// Aqui fica só um evento personalizado do clique, para não duplicar o IC.
 document.querySelectorAll('.js-checkout').forEach(el => el.addEventListener('click', () => {
-  px('track', 'InitiateCheckout', {content_name: 'Formação Técnico em iPhone', value: 29.90, currency: 'BRL', num_items: 1});
+  px('trackCustom', 'CliqueCheckout', {content_name: 'Formação Técnico em iPhone', value: 29.90, currency: 'BRL'});
 }));
 document.querySelectorAll('a[href="#planos"]').forEach(el => el.addEventListener('click', () => {
   px('trackCustom', 'CliqueCTA', {botao: el.textContent.trim().slice(0, 60)});
